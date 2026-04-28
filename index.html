@@ -264,14 +264,14 @@
 
         /* Tarjetas ELIMINADAS: Oscuras y compactas */
         .card.eliminated-card {
-            background: var(--card-eliminated-bg);
-            backdrop-filter: blur(5px);
-            border: 1px solid var(--card-eliminated-border);
-            border-bottom: 4px solid rgba(255, 255, 255, 0.2);
-            box-shadow: none;
-            cursor: default;
-            color: var(--card-eliminated-text);
-        }
+    background: rgba(255, 255, 255, 0.12); /* 🔥 transparente */
+    backdrop-filter: blur(8px); /* glass más bonito */
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-bottom: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: none;
+    cursor: default;
+    color: rgba(255,255,255,0.75);
+}
 
         .card.eliminated-card h3 {
             color: var(--card-eliminated-text) !important;
@@ -303,10 +303,23 @@
         /* --- ANIMACIONES --- */
         /* SE MANTIENE LA ANIMACIÓN DE CAÍDA AL ELIMINAR */
         .fade-out {
-            opacity: 0;
-            transform: scale(0.8) translateY(30px); /* Caída más pronunciada */
-            pointer-events: none; /* Evitar clics durante la animación */
-        }
+    animation: fallOut 0.5s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes fallOut {
+    0% {
+        opacity: 1;
+        transform: rotate(0deg) translateY(0) scale(1);
+    }
+    30% {
+        transform: rotate(8deg) translateY(10px) scale(0.95);
+    }
+    100% {
+        opacity: 0;
+        transform: rotate(25deg) translateY(120px) scale(0.8);
+    }
+}
 
         .pop-in {
             animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
