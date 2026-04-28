@@ -3,13 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dinámica de Eliminación - 2do Año</title>
+    <title>Dinámica de Eliminación - 2do Año (Modificado)</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            var(--card-eliminated): rgba(255, 255, 255, 0.15);
-            --text-main: #2d3436;
+            /* Nuevo degradado animado para el fondo */
+            --bg-animation-duration: 20s;
+            --bg-color-1: #667eea;
+            --bg-color-2: #764ba2;
+            --bg-color-3: #ff7e5f;
+            --bg-color-4: #feb47b;
+            --bg-color-5: #764ba2;
+            --bg-color-6: #667eea;
+
+            /* Variables de tarjetas activas con degradados variados */
+            --card-active-bg-1: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); /* Azul oscuro */
+            --card-active-bg-2: linear-gradient(135deg, #2d3436 0%, #636e72 100%); /* Gris oscuro */
+            --card-active-bg-3: linear-gradient(135deg, #a044ff 0%, #6a3093 100%); /* Violeta oscuro */
+            --card-active-bg-4: linear-gradient(135deg, #cc2b5e 0%, #753a88 100%); /* Rojo/violeta oscuro */
+            --card-active-bg-5: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); /* Verde/azul oscuro */
+            --card-active-bg-6: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%); /* Naranja oscuro */
+            --card-active-bg-7: linear-gradient(135deg, #200122 0%, #6f0000 100%); /* Negro/rojo oscuro */
+            --card-active-bg-8: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); /* Negro/azul oscuro */
+            
+            /* Tarjetas ELIMINADAS: Oscuras y compactas */
+            --card-eliminated-bg: #1c1c1c; /* Negro carbón */
+            --card-eliminated-text: rgba(255, 255, 255, 0.7);
+            --card-eliminated-border: rgba(255, 255, 255, 0.1);
+            
+            --text-main: #f0f0f0; /* Texto claro para fondo oscuro */
             --primary-btn: #ff4757;
             --primary-hover: #ff6b81;
             --save-btn: #2ed573;
@@ -24,17 +47,17 @@
         }
 
         body {
-            /* Degradado cambiante constantemente */
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            /* Fondo con degradado animado y cambiante constantemente */
+            background: linear-gradient(120deg, var(--bg-color-1), var(--bg-color-2), var(--bg-color-3), var(--bg-color-4), var(--bg-color-5), var(--bg-color-6));
             background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            animation: gradient-flow var(--bg-animation-duration) ease infinite;
             min-height: 100vh;
             color: var(--text-main);
             padding: 30px 20px;
+            overflow-x: hidden;
         }
 
-        /* Animación del fondo */
-        @keyframes gradientBG {
+        @keyframes gradient-flow {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
@@ -49,7 +72,7 @@
         h1 {
             font-size: 2.5rem;
             font-weight: 800;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3);
             margin-bottom: 5px;
         }
 
@@ -57,8 +80,8 @@
         #modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.6); /* Más oscuro para contraste */
+            backdrop-filter: blur(8px); /* Efecto cristal */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -74,7 +97,7 @@
             max-height: 85vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
@@ -100,6 +123,7 @@
             margin-bottom: 20px;
         }
 
+        /* Scrollbar personalizado para el modal */
         #checkbox-list::-webkit-scrollbar { width: 6px; }
         #checkbox-list::-webkit-scrollbar-track { background: #f1f2f6; border-radius: 10px; }
         #checkbox-list::-webkit-scrollbar-thumb { background: #b2bec3; border-radius: 10px; }
@@ -168,7 +192,7 @@
         }
 
         .section-title {
-            margin-top: 150px; /* Más espacio entre activos y eliminados */
+            margin-top: 100px; /* MÁS ESPACIO entre activos y eliminados */
             margin-bottom: 25px;
             font-size: 1.8rem;
             color: rgba(255, 255, 255, 0.9);
@@ -188,86 +212,100 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Tarjetas más compactas */
+            gap: 15px; /* Menos espacio entre tarjetas */
         }
 
         .card {
-            padding: 25px 20px;
-            border-radius: 18px;
+            background: var(--card-active-bg-1); /* Fondo por defecto */
+            padding: 15px; /* COMPACTA: Menos padding */
+            border-radius: 14px; /* COMPACTA: Bordes más pequeños */
             text-align: center;
             font-weight: 600;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background 0.3s ease;
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 110px;
+            min-height: 80px; /* COMPACTA: Menor altura mínima */
+            color: #fff; /* Texto blanco para fondos oscuros */
         }
 
         .card h3 {
-            font-size: 1.2rem;
+            font-size: 0.9rem; /* COMPACTA: Texto más pequeño */
             margin: 0;
-            color: var(--text-main);
+            color: inherit; /* Hereda color blanco de .card */
+            word-wrap: break-word;
+            max-width: 100%;
         }
+
+        .card.active-card {
+            border-bottom: 4px solid var(--primary-btn); /* Borde más pequeño */
+        }
+
+        /* Asignar degradados variados a las tarjetas activas */
+        .active-card:nth-child(8n+1) { background: var(--card-active-bg-1); }
+        .active-card:nth-child(8n+2) { background: var(--card-active-bg-2); }
+        .active-card:nth-child(8n+3) { background: var(--card-active-bg-3); }
+        .active-card:nth-child(8n+4) { background: var(--card-active-bg-4); }
+        .active-card:nth-child(8n+5) { background: var(--card-active-bg-5); }
+        .active-card:nth-child(8n+6) { background: var(--card-active-bg-6); }
+        .active-card:nth-child(8n+7) { background: var(--card-active-bg-7); }
+        .active-card:nth-child(8n+8) { background: var(--card-active-bg-8); }
 
         .card.active-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            transform: translateY(-5px) scale(1.02); /* Animación hover más suave */
+            box-shadow: 0 12px 20px rgba(0,0,0,0.25);
+            border-bottom-color: var(--primary-hover);
         }
 
-        /* Opciones de colores variadas para las tarjetas activas */
-        .card.active-card:nth-child(6n+1) { background-color: #ffeaa7; border-bottom: 5px solid #fdcb6e; }
-        .card.active-card:nth-child(6n+2) { background-color: #fab1a0; border-bottom: 5px solid #e17055; }
-        .card.active-card:nth-child(6n+3) { background-color: #81ecec; border-bottom: 5px solid #00cec9; }
-        .card.active-card:nth-child(6n+4) { background-color: #74b9ff; border-bottom: 5px solid #0984e3; }
-        .card.active-card:nth-child(6n+5) { background-color: #a29bfe; border-bottom: 5px solid #6c5ce7; }
-        .card.active-card:nth-child(6n+6) { background-color: #55efc4; border-bottom: 5px solid #00b894; }
-
-        /* Estilo Glassmorphism para eliminados (mantiene su diseño original sobrio) */
+        /* Tarjetas ELIMINADAS: Oscuras y compactas */
         .card.eliminated-card {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--card-eliminated-bg);
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-bottom: 5px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid var(--card-eliminated-border);
+            border-bottom: 4px solid rgba(255, 255, 255, 0.2);
             box-shadow: none;
             cursor: default;
+            color: var(--card-eliminated-text);
         }
 
         .card.eliminated-card h3 {
-            color: rgba(255, 255, 255, 0.6) !important;
+            color: var(--card-eliminated-text) !important;
             text-decoration: line-through;
             font-weight: 400;
         }
 
         .save-btn {
-            margin-top: 15px;
-            padding: 8px 20px;
+            margin-top: 10px; /* Menos espacio */
+            padding: 6px 15px; /* Botón más compacto */
             background: var(--save-btn);
             color: #fff;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 800;
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* Texto más pequeño */
             text-transform: uppercase;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3);
+            box-shadow: 0 3px 6px rgba(46, 213, 115, 0.3);
         }
 
         .save-btn:hover {
             background: var(--save-hover);
             transform: scale(1.05);
-            box-shadow: 0 6px 15px rgba(46, 213, 115, 0.4);
+            box-shadow: 0 5px 10px rgba(46, 213, 115, 0.4);
         }
 
         /* --- ANIMACIONES --- */
+        /* SE MANTIENE LA ANIMACIÓN DE CAÍDA AL ELIMINAR */
         .fade-out {
             opacity: 0;
-            transform: scale(0.8) translateY(20px);
+            transform: scale(0.8) translateY(30px); /* Caída más pronunciada */
+            pointer-events: none; /* Evitar clics durante la animación */
         }
 
         .pop-in {
@@ -287,7 +325,7 @@
             padding: 50px 20px;
             border-radius: 24px;
             margin-bottom: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             border: 4px solid #fff;
             animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
@@ -331,15 +369,15 @@
         <p class="subtitle" id="subtitle-activos">Toca la tarjeta de un estudiante para eliminarlo de la ronda.</p>
         
         <div id="active-grid" class="grid">
-        </div>
+            </div>
 
         <h2 class="section-title">Zona de Eliminados</h2>
         <div id="eliminated-grid" class="grid">
-        </div>
+            </div>
     </div>
 
     <script>
-        // Lista original cambiada a un solo nombre por estudiante
+        // Lista original MODIFICADA a un solo nombre por estudiante
         const allStudents = [
             "José", "Abel", "Maicol", 
             "Estephany", "Amy", "Mauricio", 
@@ -411,28 +449,29 @@
                 subtitleActivos.style.display = 'block';
             }
 
-            // Renderizar Activos
+            // Renderizar Activos: Compactas, degradados oscuros variados
             activeStudents.forEach((student, index) => {
                 const card = document.createElement('div');
                 card.className = 'card active-card pop-in';
+                // El CSS usará nth-child para los degradados
                 card.innerHTML = `<h3>${student}</h3>`;
                 card.onclick = () => eliminarEstudiante(index, card);
                 activeGrid.appendChild(card);
             });
 
-            // Renderizar Eliminados
+            // Renderizar Eliminados: Oscuras y compactas
             eliminatedStudents.forEach((student, index) => {
                 const card = document.createElement('div');
                 card.className = 'card eliminated-card pop-in';
                 card.innerHTML = `
-                    <h3 style="color: #666; text-decoration: line-through;">${student}</h3>
+                    <h3 style="text-decoration: line-through;">${student}</h3>
                     <button class="save-btn" onclick="salvarEstudiante(${index}, this.parentElement)">¡Salvar!</button>
                 `;
                 eliminatedGrid.appendChild(card);
             });
         }
 
-        // 4. Lógica para Eliminar
+        // 4. Lógica para Eliminar: SE MANTIENE LA ANIMACIÓN DE CAÍDA
         function eliminarEstudiante(index, cardElement) {
             // Añadir clase de animación de salida
             cardElement.classList.add('fade-out');
@@ -445,7 +484,7 @@
             }, 300);
         }
 
-        // 5. Lógica para Salvar
+        // 5. Lógica para Salvar: SE MANTIENE LA ANIMACIÓN DE CAÍDA (aunque es menos obvia al salvar)
         function salvarEstudiante(index, cardElement) {
             // Evitar que el clic se propague
             event.stopPropagation();
@@ -459,7 +498,7 @@
             }, 300);
         }
 
-        // 6. Efecto de Confeti
+        // 6. Efecto de Confeti (Opcional, hace la victoria más emocionante)
         function lanzarConfeti() {
             var duration = 3000;
             var end = Date.now() + duration;
